@@ -23,12 +23,12 @@
     var items = []
     var color = (count % 2 === 0)
       ? 'blue'
-      : 'red'
+      : 'red';
+    color = 'blue';
 
     for (var i = 0; i < count; i++) {
       items.push(el('li', ['Item #' + i]))
     }
-
     return el('div', {'id': 'container'}, [
       el('h1', {style: 'color: ' + color}, ['simple virtal dom']),
       el('p', ['the count is :' + count]),
