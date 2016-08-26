@@ -8,6 +8,39 @@ define(function(require, exports, module){
 	var diff = require('../vdom/diff')
 	var patch = require('../vdom/patch')
   
+var count = 0
+
+  function renderTree () {
+    count++
+
+    var items = []
+    var color = (count % 2 === 0)
+      ? 'blue'
+      : 'red';
+    color = 'blue';
+
+    for (var i = 0; i < count; i++) {
+      items.push(el('li', ['Item #' + i]))
+    }
+    return el('div', {'id': 'container'}, [
+      el('h1', {style: 'color: ' + color}, ['simple virtal dom']),
+      el('p', ['the count is :' + count]),
+      el('ul', items)
+    ])
+  }
+
+  var tree = renderTree()
+  var root = tree.render()
+  document.body.appendChild(root)
+
+  /*setInterval(function () {
+    var newTree = renderTree()
+    var patches = diff(tree, newTree)
+    console.log(patches)
+    patch(root, patches)
+
+    tree = newTree
+  }, 1000)*/
   
   //测试用例1（自定义事件测试）
   // 捕捉 DOM
@@ -53,7 +86,7 @@ define(function(require, exports, module){
   	objCElement.innerHTML = obj.newAccessorProperty;
   	console.log("change value");
   });
-  var obj = {newAccessorProperty: 20};
+  window.obj = {newAccessorProperty: 20};
   objCElement.innerHTML = obj.newAccessorProperty;
 	 Object.defineProperty(obj, "newAccessorProperty", {
 	     set: function (x) {
