@@ -1,15 +1,13 @@
 define(function(require, exports, module){
-	var util = require("../../extends/util.js");
 	/*
 	 * DOM自定义及标准事件绑定
 	 * */
-	var Ev = function(element){
+	var $ =  Ev = function(element){
 		return new Ev.fn.init(element);
 	};
 	
 	// Ev 对象构建
 	Ev.fn = Ev.prototype = {
-		constructor: Ev,
 		init: function(element){
 			this.element = (element && element.nodeType == 1)? element: document;
 		},
@@ -27,13 +25,7 @@ define(function(require, exports, module){
 				/**
 				 * @supported For Modern Browers and IE9+
 				 */
-				_that.element.addEventListener(type, function(e){
-					(function(e){
-						setTimeout(function(){
-							callback.call(_that.element, e);
-						}, 0);
-					})(e);
-				}, false);
+				_that.element.addEventListener(type, callback, false);
 			} else if(_that.element.attachEvent){
 				/**
 				 * @supported For IE5+
@@ -46,11 +38,7 @@ define(function(require, exports, module){
 	                var fnEv = function(event){
 	                	event = event ? event : window.event
 	                    if( event.propertyName == type ){
-	                    	(function(e){
-	    						setTimeout(function(){
-	    							callback.call(_that.element, e);
-	    						}, 0);
-	    					})(event);
+	                        callback.call(_that.element, event);
 	                    }
 	                };
 	                _that.element.attachEvent('onpropertychange', fnEv);
@@ -60,35 +48,15 @@ define(function(require, exports, module){
 	                }
 	            // 标准事件处理
 	            } else {
-		            _that.element.attachEvent('on' + type, function(e){
-		            	(function(e){
-    						setTimeout(function(){
-    							callback.call(_that.element, e);
-    						}, 0);
-    					})(e);
-		            });
+		            _that.element.attachEvent('on' + type, callback);
 	            }
 			} else {
 				/**
 				 * @supported For Others
 				 */
-				_that.element['on' + type] = function(e){
-					(function(e){
-						setTimeout(function(){
-							callback.call(_that.element, e);
-						}, 0);
-					})(e);
-				};
+				_that.element['on' + type] = callback;
 			}
 			return _that;
-		},
-		//双向绑定，触发UI自动更新####&&&&
-		changeUIHandler: function(property, obj){
-			var _that = this;
-			_that.add("custom_"+property, function(e){
-				obj["dataCallback"].call(_that.element, obj[property]);
-				delete obj["dataCallback"];
-			});
 		},
 	
 		/**
@@ -208,12 +176,12 @@ define(function(require, exports, module){
 	    	return this;
 	    },
 	    //发布
-	    fireEvent: function (type, data) {
+	    fireEvent: function (type, msg) {
 	    	if(type && this.subscribers[type]){
 	    		var event = {
                     type: type,
                     target: this,
-                    data: data
+                    data: msg
                 };
                 
                 for (var length = this.subscribers[type].length, start=0; start<length; start+=1) {
@@ -228,49 +196,29 @@ define(function(require, exports, module){
 	            o[i] = this[i];
 	            o.subscribers = [];
 	        }
-	        return o;
 	    }
 	};
 	
-	
-	var tempObj = {};
-	
-	var OB = {
-			init: function(o){
-				var _uuid = util.uuid();
-				tempObj[_uuid] = {};
-				for(var k in o){//遍历对象并生成包含对象属性对应的临时属性的数据对象tempObj[_uuid]
-					tempObj[_uuid]["tem_"+ k] = o[k];
-		    	}
-				o["tempObj"] = _uuid;//将生成的临时属性数据对象key值存入原始对象中
-				return Observer.make(o);//给对象填充观察者模式，并返回
-			},
-			bind: function(objEv, uitype, obj, property, uiCallback, dataCallback){
-				obj.addEvent(property, function(e){//添加观察者事件
-					tempObj[this["tempObj"]]["tem_"+ property] = e.data;//触发UI事件，储存UI中的值到临时数据对象（tempObj[_uuid]）中
-				});
-				objEv.add(uitype, function(e){//绑定UI原生事件
-					var _uidata = uiCallback.call(this, e);
-					obj.fireEvent(property, _uidata);//触发观察者
-				});
-				objEv.changeUIHandler(property, obj);//给DOM Ev对象添加绑定自定义事件
-				Object.defineProperty(obj, property, {
-				     set: function(x){
-				    	 this["dataCallback"] = dataCallback;
-				         tempObj[this["tempObj"]]["tem_"+ property] = x;
-				         objEv.trigger("custom_"+property);//触发DOM Ev对象绑定的自定义事件
-				     },
-				     get: function(){
-				         return tempObj[this["tempObj"]]["tem_"+ property];
-				     },
-				     enumerable: true,
-				     configurable: true
-				 });
-			}
-	}
+	/*Object.defineProperty*/
+	var definePropertyGetSet = function(obj, property, callback){
+		Object.defineProperty(obj, property, {
+		     set: function (x) {
+		         this[property] = x;
+		         if(typeof callback === "function"){
+		        	 callback();
+		         }
+		     },
+		     get: function () {
+		         return this[property];
+		     },
+		     enumerable: true,
+		     configurable: true
+		 });
+	};
 	
 	return {
-		Ev: Ev,
-		OB: OB
+		$: Ev,
+		Observer: Observer,
+		definePropertyGetSet: definePropertyGetSet
 	}
 });

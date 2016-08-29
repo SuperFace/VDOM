@@ -1,7 +1,7 @@
 define(function(require, exports, module){
-	var _ = require('../../extends/util');
-	var patch = require('./patch');
-	var listDiff = require('./list-diff2');
+	var _ = require('./util')
+	var patch = require('./patch')
+	var listDiff = require('./list-diff2')
 
 	function diff (oldTree, newTree) {
 	  var index = 0

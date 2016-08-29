@@ -1,5 +1,5 @@
 define(function(require, exports, module){
-	var _ = require('../../extends/util');
+	var _ = require('./util')
 
 	/**
 	 * Virtual-dom Element.

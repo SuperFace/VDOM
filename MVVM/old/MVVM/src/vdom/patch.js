@@ -1,5 +1,5 @@
 define(function(require, exports, module){
-	var _ = require('../../extends/util');
+	var _ = require('./util')
 
 	var REPLACE = 0
 	var REORDER = 1
