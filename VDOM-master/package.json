@@ -1,0 +1,22 @@
+{
+  "name": "vdom",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SuperFace/VDOM.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SuperFace/VDOM/issues"
+  },
+  "homepage": "https://github.com/SuperFace/VDOM#readme",
+  "devDependencies": {
+    "list-diff2": "^0.1.4"
+  }
+}
